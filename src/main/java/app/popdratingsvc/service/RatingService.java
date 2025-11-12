@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class RatingService {
@@ -39,5 +40,11 @@ public class RatingService {
 
 
         return ratingRepository.save(rating);
+    }
+
+    public Rating findByUserIdAndMovieId(UUID userId, UUID movieId) {
+        Optional<Rating> ratingOpt = ratingRepository.findByUserIdAndMovieId(userId, movieId);
+
+        return ratingOpt.orElse(null);
     }
 }

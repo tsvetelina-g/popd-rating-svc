@@ -1,0 +1,41 @@
+package app.popdratingsvc.model;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+@Data
+@Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(
+        name = "ratings",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "movie_id"})
+)
+public class Rating {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
+    @Column(nullable = false)
+    private int value;
+
+    @Column(name = "user_id", nullable = false)
+    private UUID userId;
+
+    @Column(name = "movie_id", nullable = false)
+    private UUID movieId;
+
+    @Column(nullable = false)
+    private LocalDateTime createdOn;
+
+    @Column(nullable = false)
+    private LocalDateTime updatedOn;
+}

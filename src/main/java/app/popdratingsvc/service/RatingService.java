@@ -6,6 +6,7 @@ import app.popdratingsvc.web.dto.RatingRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -46,5 +47,35 @@ public class RatingService {
         Optional<Rating> ratingOpt = ratingRepository.findByUserIdAndMovieId(userId, movieId);
 
         return ratingOpt.orElse(null);
+    }
+
+    public Boolean removeBy(UUID userId, UUID movieId) {
+        Optional<Rating> ratingOpt = ratingRepository.findByUserIdAndMovieId(userId, movieId);
+
+        if (ratingOpt.isPresent()) {
+            ratingRepository.delete(ratingOpt.get());
+            return true;
+        }
+
+        return false;
+    }
+
+    public Double getAverageRatingForAMovie(UUID movieId) {
+
+        List<Rating> ratings = ratingRepository.findAllByMovieId(movieId);
+
+        if (ratings.isEmpty()) {
+            return null;
+        }
+
+        double sum = ratings.stream()
+                .mapToInt(Rating::getValue)
+                .sum();
+
+        return sum / ratings.size();
+    }
+
+    public Integer getAllRatingForAMovieCount(UUID movieId) {
+       return ratingRepository.findAllByMovieId(movieId).size();
     }
 }

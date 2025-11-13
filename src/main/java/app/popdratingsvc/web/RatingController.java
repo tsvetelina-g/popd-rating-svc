@@ -2,6 +2,7 @@ package app.popdratingsvc.web;
 
 import app.popdratingsvc.model.Rating;
 import app.popdratingsvc.service.RatingService;
+import app.popdratingsvc.web.dto.MovieRatingStatsResponse;
 import app.popdratingsvc.web.dto.RatingRequest;
 import app.popdratingsvc.web.dto.RatingResponse;
 import app.popdratingsvc.web.mapper.DtoMapper;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
-@Controller
+@RestController
 @RequestMapping("/api/v1")
 public class RatingController {
 
@@ -33,7 +34,7 @@ public class RatingController {
     }
 
     @GetMapping("/ratings/{userId}/{movieId}")
-    public ResponseEntity<RatingResponse> getRatingByUserAndMovie(@RequestParam("userId") UUID userId, @RequestParam("movieId") UUID movieId) {
+    public ResponseEntity<RatingResponse> getRatingByUserAndMovie(@PathVariable UUID userId, @PathVariable UUID movieId) {
 
         Rating rating = ratingService.findByUserIdAndMovieId(userId, movieId);
 
@@ -44,5 +45,28 @@ public class RatingController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(DtoMapper.from(rating));
+    }
+
+    @DeleteMapping("/ratings/{userId}/{movieId}")
+    public ResponseEntity<Void> deleteRating(@PathVariable UUID userId, @PathVariable UUID movieId) {
+
+        Boolean isDeleted = ratingService.removeBy(userId, movieId);
+
+        if (!isDeleted) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/ratings/{movieId}")
+    public ResponseEntity<MovieRatingStatsResponse> movieRatingStats(@PathVariable UUID movieId) {
+
+        Double averageRating = ratingService.getAverageRatingForAMovie(movieId);
+        Integer allRatingsCount = ratingService.getAllRatingForAMovieCount(movieId);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(DtoMapper.from(averageRating, allRatingsCount));
     }
 }

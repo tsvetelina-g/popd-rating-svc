@@ -1,6 +1,7 @@
 package app.popdratingsvc.web.mapper;
 
 import app.popdratingsvc.model.Rating;
+import app.popdratingsvc.web.dto.MovieRatingStatsResponse;
 import app.popdratingsvc.web.dto.RatingResponse;
 import lombok.experimental.UtilityClass;
 
@@ -15,6 +16,14 @@ public class DtoMapper {
                 .userId(rating.getUserId())
                 .createdOn(rating.getCreatedOn())
                 .updatedOn(rating.getUpdatedOn())
+                .build();
+    }
+
+    public static MovieRatingStatsResponse from(Double averageRating, Integer totalRatings) {
+
+        return MovieRatingStatsResponse.builder()
+                .averageRating(averageRating)
+                .totalRatings(totalRatings)
                 .build();
     }
 

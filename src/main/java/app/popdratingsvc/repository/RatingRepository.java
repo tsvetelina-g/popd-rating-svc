@@ -14,4 +14,6 @@ public interface RatingRepository extends JpaRepository<Rating, UUID> {
     Optional<Rating> findByUserIdAndMovieId(UUID userId, UUID movieId);
 
     List<Rating> findAllByMovieId(UUID movieId);
+
+    List<Rating> findAllByUserId(UUID userId);
 }

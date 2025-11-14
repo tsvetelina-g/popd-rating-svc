@@ -76,6 +76,24 @@ public class RatingService {
     }
 
     public Integer getAllRatingForAMovieCount(UUID movieId) {
-       return ratingRepository.findAllByMovieId(movieId).size();
+
+        List<Rating> ratings = ratingRepository.findAllByMovieId(movieId);
+
+        if (ratings.isEmpty()) {
+            return null;
+        }
+
+       return ratings.size();
+    }
+
+    public Integer getAllRatedMoviesCountByUser(UUID userId) {
+
+        List<Rating> ratings = ratingRepository.findAllByUserId(userId);
+
+        if (ratings.isEmpty()){
+            return null;
+        }
+
+        return ratings.size();
     }
 }

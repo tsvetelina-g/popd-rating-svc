@@ -5,6 +5,7 @@ import app.popdratingsvc.service.RatingService;
 import app.popdratingsvc.web.dto.MovieRatingStatsResponse;
 import app.popdratingsvc.web.dto.RatingRequest;
 import app.popdratingsvc.web.dto.RatingResponse;
+import app.popdratingsvc.web.dto.UserRatingStatsResponse;
 import app.popdratingsvc.web.mapper.DtoMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -68,5 +69,15 @@ public class RatingController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(DtoMapper.from(averageRating, allRatingsCount));
+    }
+
+    @GetMapping("/ratings/{userId}/user")
+    public ResponseEntity<UserRatingStatsResponse> userRatingStats(@PathVariable UUID userId) {
+
+        Integer moviesRatedCount = ratingService.getAllRatedMoviesCountByUser(userId);
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(DtoMapper.from(moviesRatedCount));
     }
 }

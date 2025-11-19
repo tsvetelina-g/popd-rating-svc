@@ -9,9 +9,9 @@ import app.popdratingsvc.web.dto.UserRatingStatsResponse;
 import app.popdratingsvc.web.mapper.DtoMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -51,7 +51,7 @@ public class RatingController {
     @DeleteMapping("/ratings/{userId}/{movieId}")
     public ResponseEntity<Void> deleteRating(@PathVariable UUID userId, @PathVariable UUID movieId) {
 
-        Boolean isDeleted = ratingService.removeBy(userId, movieId);
+        Boolean isDeleted = ratingService.removeRating(userId, movieId);
 
         if (!isDeleted) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -60,11 +60,11 @@ public class RatingController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/ratings/{movieId}")
+    @GetMapping("/ratings/{movieId}/stats")
     public ResponseEntity<MovieRatingStatsResponse> movieRatingStats(@PathVariable UUID movieId) {
 
         Double averageRating = ratingService.getAverageRatingForAMovie(movieId);
-        Integer allRatingsCount = ratingService.getAllRatingForAMovieCount(movieId);
+        Integer allRatingsCount = ratingService.getAllRatingsForAMovieCount(movieId);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -79,5 +79,17 @@ public class RatingController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(DtoMapper.from(moviesRatedCount));
+    }
+
+    @GetMapping("ratings/{userId}/latest-ratings")
+    public ResponseEntity<List<RatingResponse>> latestRatingsByUser(@PathVariable UUID userId) {
+
+        List<RatingResponse> latestRatings = ratingService.getLatestRatingsByUserId(userId);
+
+        if (latestRatings == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        return ResponseEntity.ok(latestRatings);
     }
 }

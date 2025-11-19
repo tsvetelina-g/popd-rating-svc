@@ -3,6 +3,8 @@ package app.popdratingsvc.service;
 import app.popdratingsvc.model.Rating;
 import app.popdratingsvc.repository.RatingRepository;
 import app.popdratingsvc.web.dto.RatingRequest;
+import app.popdratingsvc.web.dto.RatingResponse;
+import app.popdratingsvc.web.mapper.DtoMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -49,7 +51,7 @@ public class RatingService {
         return ratingOpt.orElse(null);
     }
 
-    public Boolean removeBy(UUID userId, UUID movieId) {
+    public Boolean removeRating(UUID userId, UUID movieId) {
         Optional<Rating> ratingOpt = ratingRepository.findByUserIdAndMovieId(userId, movieId);
 
         if (ratingOpt.isPresent()) {
@@ -75,7 +77,7 @@ public class RatingService {
         return sum / ratings.size();
     }
 
-    public Integer getAllRatingForAMovieCount(UUID movieId) {
+    public Integer getAllRatingsForAMovieCount(UUID movieId) {
 
         List<Rating> ratings = ratingRepository.findAllByMovieId(movieId);
 
@@ -95,5 +97,18 @@ public class RatingService {
         }
 
         return ratings.size();
+    }
+
+    public List<RatingResponse> getLatestRatingsByUserId(UUID userId) {
+
+        List<Rating> latestRatings = ratingRepository.findAllByUserIdOrderByCreatedOnDesc(userId);
+
+        if (latestRatings.isEmpty()) {
+            return null;
+        }
+
+        List<RatingResponse> responses = latestRatings.stream().map(DtoMapper::from).toList();
+
+        return responses.stream().limit(20).toList();
     }
 }

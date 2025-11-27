@@ -1,7 +1,6 @@
 package app.popdratingsvc.repository;
 
 import app.popdratingsvc.model.Rating;
-import app.popdratingsvc.web.dto.RatingResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -18,5 +17,5 @@ public interface RatingRepository extends JpaRepository<Rating, UUID> {
 
     List<Rating> findAllByUserId(UUID userId);
 
-    List<Rating> findAllByUserIdOrderByCreatedOnDesc(UUID userId);
+    List<Rating> findAllByUserIdOrderByUpdatedOnDesc(UUID userId);
 }

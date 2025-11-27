@@ -1,10 +1,12 @@
 package app.popdratingsvc.service;
 
+import app.popdratingsvc.exception.NotFoundException;
 import app.popdratingsvc.model.Rating;
 import app.popdratingsvc.repository.RatingRepository;
 import app.popdratingsvc.web.dto.RatingRequest;
 import app.popdratingsvc.web.dto.RatingResponse;
 import app.popdratingsvc.web.mapper.DtoMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -12,6 +14,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Slf4j
 @Service
 public class RatingService {
 
@@ -22,15 +25,17 @@ public class RatingService {
     }
 
     public Rating upsert(RatingRequest ratingRequest) {
-
         Optional<Rating> ratingOpt = ratingRepository.findByUserIdAndMovieId(ratingRequest.getUserId(), ratingRequest.getMovieId());
 
-        if (ratingOpt.isPresent()){
+        if (ratingOpt.isPresent()) {
             Rating rating = ratingOpt.get();
             rating.setValue(ratingRequest.getValue());
             rating.setUpdatedOn(LocalDateTime.now());
-
-            return ratingRepository.save(rating);
+            
+            Rating savedRating = ratingRepository.save(rating);
+            log.info("Successfully updated rating with id {} for user with id {} and movie with id {}",
+                savedRating.getId(), savedRating.getUserId(), savedRating.getMovieId());
+            return savedRating;
         }
 
         Rating rating = Rating.builder()
@@ -41,74 +46,74 @@ public class RatingService {
                 .updatedOn(LocalDateTime.now())
                 .build();
 
-
-        return ratingRepository.save(rating);
+        Rating savedRating = ratingRepository.save(rating);
+        log.info("Successfully created new rating with id {} for user with id {} and movie with id {}",
+            savedRating.getId(), savedRating.getUserId(), savedRating.getMovieId());
+        return savedRating;
     }
 
     public Rating findByUserIdAndMovieId(UUID userId, UUID movieId) {
-        Optional<Rating> ratingOpt = ratingRepository.findByUserIdAndMovieId(userId, movieId);
-
-        return ratingOpt.orElse(null);
+        return ratingRepository.findByUserIdAndMovieId(userId, movieId).orElseThrow(() -> new NotFoundException("Rating with user id [%s] and movie id [%s] not found".formatted(userId, movieId)));
     }
 
-    public Boolean removeRating(UUID userId, UUID movieId) {
-        Optional<Rating> ratingOpt = ratingRepository.findByUserIdAndMovieId(userId, movieId);
-
-        if (ratingOpt.isPresent()) {
-            ratingRepository.delete(ratingOpt.get());
-            return true;
-        }
-
-        return false;
+    public void removeRating(UUID userId, UUID movieId) {
+        Rating rating = findByUserIdAndMovieId(userId, movieId);
+        ratingRepository.delete(rating);
+        log.info("Successfully removed rating with id {} for user with id {} and movie with id {}",
+            rating.getId(), userId, movieId);
     }
 
     public Double getAverageRatingForAMovie(UUID movieId) {
-
         List<Rating> ratings = ratingRepository.findAllByMovieId(movieId);
 
         if (ratings.isEmpty()) {
-            return null;
+            throw new NotFoundException("No ratings found for movie with id [%s]".formatted(movieId));
         }
 
         double sum = ratings.stream()
                 .mapToInt(Rating::getValue)
                 .sum();
 
-        return sum / ratings.size();
+        Double average = sum / ratings.size();
+        log.info("Calculated average rating {} for movie {} based on {} ratings", average, movieId, ratings.size());
+        return average;
     }
 
     public Integer getAllRatingsForAMovieCount(UUID movieId) {
-
         List<Rating> ratings = ratingRepository.findAllByMovieId(movieId);
 
         if (ratings.isEmpty()) {
-            return null;
+            throw new NotFoundException("No ratings found for movie with id [%s]".formatted(movieId));
         }
 
-       return ratings.size();
+        Integer count = ratings.size();
+        log.info("Found {} ratings for movie {}", count, movieId);
+        return count;
     }
 
     public Integer getAllRatedMoviesCountByUser(UUID userId) {
-
         List<Rating> ratings = ratingRepository.findAllByUserId(userId);
 
-        if (ratings.isEmpty()){
-            return null;
+        if (ratings.isEmpty()) {
+            throw new NotFoundException("No movies rated by user with id [%s]".formatted(userId));
         }
 
-        return ratings.size();
+        Integer count = ratings.size();
+        log.info("User {} has rated {} movies", userId, count);
+        return count;
     }
 
     public List<RatingResponse> getLatestRatingsByUserId(UUID userId) {
-
-        List<Rating> latestRatings = ratingRepository.findAllByUserIdOrderByCreatedOnDesc(userId);
+        List<Rating> latestRatings = ratingRepository.findAllByUserIdOrderByUpdatedOnDesc(userId);
 
         if (latestRatings.isEmpty()) {
-            return null;
+            throw new NotFoundException("Latest Ratings not found for user with id [%s]".formatted(userId));
         }
 
         List<RatingResponse> responses = latestRatings.stream().map(DtoMapper::from).toList();
-
-        return responses.stream().limit(20).toList();
+        List<RatingResponse> limitedResponses = responses.stream().limit(20).toList();
+        log.info("Retrieved {} latest ratings for user {} (limited from {})", 
+            limitedResponses.size(), userId, responses.size());
+        return limitedResponses;
     }
 }

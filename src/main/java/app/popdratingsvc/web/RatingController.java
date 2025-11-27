@@ -26,7 +26,6 @@ public class RatingController {
 
     @PostMapping("/ratings")
     public ResponseEntity<RatingResponse> upsertRating(@RequestBody RatingRequest ratingRequest) {
-
         Rating rating = ratingService.upsert(ratingRequest);
 
         return ResponseEntity
@@ -36,12 +35,7 @@ public class RatingController {
 
     @GetMapping("/ratings/{userId}/{movieId}")
     public ResponseEntity<RatingResponse> getRatingByUserAndMovie(@PathVariable UUID userId, @PathVariable UUID movieId) {
-
         Rating rating = ratingService.findByUserIdAndMovieId(userId, movieId);
-
-        if (rating == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
 
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -50,19 +44,13 @@ public class RatingController {
 
     @DeleteMapping("/ratings/{userId}/{movieId}")
     public ResponseEntity<Void> deleteRating(@PathVariable UUID userId, @PathVariable UUID movieId) {
-
-        Boolean isDeleted = ratingService.removeRating(userId, movieId);
-
-        if (!isDeleted) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        ratingService.removeRating(userId, movieId);
 
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/ratings/{movieId}/stats")
     public ResponseEntity<MovieRatingStatsResponse> movieRatingStats(@PathVariable UUID movieId) {
-
         Double averageRating = ratingService.getAverageRatingForAMovie(movieId);
         Integer allRatingsCount = ratingService.getAllRatingsForAMovieCount(movieId);
 
@@ -73,7 +61,6 @@ public class RatingController {
 
     @GetMapping("/ratings/{userId}/user")
     public ResponseEntity<UserRatingStatsResponse> userRatingStats(@PathVariable UUID userId) {
-
         Integer moviesRatedCount = ratingService.getAllRatedMoviesCountByUser(userId);
 
         return ResponseEntity
@@ -83,12 +70,7 @@ public class RatingController {
 
     @GetMapping("ratings/{userId}/latest-ratings")
     public ResponseEntity<List<RatingResponse>> latestRatingsByUser(@PathVariable UUID userId) {
-
         List<RatingResponse> latestRatings = ratingService.getLatestRatingsByUserId(userId);
-
-        if (latestRatings == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
 
         return ResponseEntity.ok(latestRatings);
     }

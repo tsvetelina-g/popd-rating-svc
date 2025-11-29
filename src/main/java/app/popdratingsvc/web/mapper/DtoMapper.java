@@ -10,7 +10,6 @@ import lombok.experimental.UtilityClass;
 public class DtoMapper {
 
     public static RatingResponse from(Rating rating) {
-
         return RatingResponse.builder()
                 .value(rating.getValue())
                 .movieId(rating.getMovieId())
@@ -21,7 +20,6 @@ public class DtoMapper {
     }
 
     public static MovieRatingStatsResponse from(Double averageRating, Integer totalRatings) {
-
         return MovieRatingStatsResponse.builder()
                 .averageRating(averageRating)
                 .totalRatings(totalRatings)
@@ -29,7 +27,6 @@ public class DtoMapper {
     }
 
     public static UserRatingStatsResponse from(Integer ratedMovies) {
-
         return UserRatingStatsResponse.builder()
                 .ratedMovies(ratedMovies)
                 .build();

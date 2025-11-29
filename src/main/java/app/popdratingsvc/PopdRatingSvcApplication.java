@@ -9,5 +9,4 @@ public class PopdRatingSvcApplication {
     public static void main(String[] args) {
         SpringApplication.run(PopdRatingSvcApplication.class, args);
     }
-
 }

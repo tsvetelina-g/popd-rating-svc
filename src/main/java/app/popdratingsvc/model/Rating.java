@@ -24,8 +24,8 @@ public class Rating {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
-    private int value;
+    @Column(name = "rating", nullable = false)
+    private int rating;
 
     @Column(name = "user_id", nullable = false)
     private UUID userId;

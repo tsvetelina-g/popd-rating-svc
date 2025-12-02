@@ -11,7 +11,7 @@ public class DtoMapper {
 
     public static RatingResponse from(Rating rating) {
         return RatingResponse.builder()
-                .value(rating.getValue())
+                .rating(rating.getRating())
                 .movieId(rating.getMovieId())
                 .userId(rating.getUserId())
                 .createdOn(rating.getCreatedOn())

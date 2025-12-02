@@ -39,7 +39,7 @@ public class RatingServiceUTest {
         RatingRequest request = RatingRequest.builder()
                 .userId(userId)
                 .movieId(movieId)
-                .value(5)
+                .rating(5)
                 .build();
         when(ratingRepository.findByUserIdAndMovieId(userId, movieId)).thenReturn(Optional.empty());
         when(ratingRepository.save(any(Rating.class))).thenAnswer(invocation -> {
@@ -51,7 +51,7 @@ public class RatingServiceUTest {
         Rating result = ratingService.upsert(request);
 
         assertNotNull(result);
-        assertEquals(5, result.getValue());
+        assertEquals(5, result.getRating());
         assertEquals(userId, result.getUserId());
         assertEquals(movieId, result.getMovieId());
         assertThat(result.getCreatedOn()).isCloseTo(LocalDateTime.now(), within(2, ChronoUnit.SECONDS));
@@ -67,13 +67,13 @@ public class RatingServiceUTest {
         RatingRequest request = RatingRequest.builder()
                 .userId(userId)
                 .movieId(movieId)
-                .value(4)
+                .rating(4)
                 .build();
         Rating existingRating = Rating.builder()
                 .id(ratingId)
                 .userId(userId)
                 .movieId(movieId)
-                .value(3)
+                .rating(3)
                 .createdOn(LocalDateTime.now().minusDays(1))
                 .updatedOn(LocalDateTime.now().minusDays(1))
                 .build();
@@ -84,7 +84,7 @@ public class RatingServiceUTest {
 
         assertNotNull(result);
         assertEquals(ratingId, result.getId());
-        assertEquals(4, result.getValue());
+        assertEquals(4, result.getRating());
         assertThat(result.getUpdatedOn()).isCloseTo(LocalDateTime.now(), within(2, ChronoUnit.SECONDS));
         verify(ratingRepository).save(existingRating);
     }
@@ -97,7 +97,7 @@ public class RatingServiceUTest {
                 .id(UUID.randomUUID())
                 .userId(userId)
                 .movieId(movieId)
-                .value(5)
+                .rating(5)
                 .build();
         when(ratingRepository.findByUserIdAndMovieId(userId, movieId)).thenReturn(Optional.of(rating));
 
@@ -125,7 +125,7 @@ public class RatingServiceUTest {
                 .id(UUID.randomUUID())
                 .userId(userId)
                 .movieId(movieId)
-                .value(5)
+                .rating(5)
                 .build();
         when(ratingRepository.findByUserIdAndMovieId(userId, movieId)).thenReturn(Optional.of(rating));
 
@@ -148,9 +148,9 @@ public class RatingServiceUTest {
     void whenGetAverageRatingForAMovie_andRatingsExist_thenReturnAverage() {
         UUID movieId = UUID.randomUUID();
         List<Rating> ratings = List.of(
-                Rating.builder().movieId(movieId).value(5).build(),
-                Rating.builder().movieId(movieId).value(4).build(),
-                Rating.builder().movieId(movieId).value(3).build()
+                Rating.builder().movieId(movieId).rating(5).build(),
+                Rating.builder().movieId(movieId).rating(4).build(),
+                Rating.builder().movieId(movieId).rating(3).build()
         );
         when(ratingRepository.findAllByMovieId(movieId)).thenReturn(ratings);
 
@@ -171,8 +171,8 @@ public class RatingServiceUTest {
     void whenGetAllRatingsForAMovieCount_andRatingsExist_thenReturnCount() {
         UUID movieId = UUID.randomUUID();
         List<Rating> ratings = List.of(
-                Rating.builder().movieId(movieId).value(5).build(),
-                Rating.builder().movieId(movieId).value(4).build()
+                Rating.builder().movieId(movieId).rating(5).build(),
+                Rating.builder().movieId(movieId).rating(4).build()
         );
         when(ratingRepository.findAllByMovieId(movieId)).thenReturn(ratings);
 
@@ -193,9 +193,9 @@ public class RatingServiceUTest {
     void whenGetAllRatedMoviesCountByUser_andRatingsExist_thenReturnCount() {
         UUID userId = UUID.randomUUID();
         List<Rating> ratings = List.of(
-                Rating.builder().userId(userId).movieId(UUID.randomUUID()).value(5).build(),
-                Rating.builder().userId(userId).movieId(UUID.randomUUID()).value(4).build(),
-                Rating.builder().userId(userId).movieId(UUID.randomUUID()).value(3).build()
+                Rating.builder().userId(userId).movieId(UUID.randomUUID()).rating(5).build(),
+                Rating.builder().userId(userId).movieId(UUID.randomUUID()).rating(4).build(),
+                Rating.builder().userId(userId).movieId(UUID.randomUUID()).rating(3).build()
         );
         when(ratingRepository.findAllByUserId(userId)).thenReturn(ratings);
 
@@ -217,8 +217,8 @@ public class RatingServiceUTest {
         UUID userId = UUID.randomUUID();
         LocalDateTime now = LocalDateTime.now();
         List<Rating> ratings = List.of(
-                Rating.builder().userId(userId).movieId(UUID.randomUUID()).value(5).createdOn(now).updatedOn(now).build(),
-                Rating.builder().userId(userId).movieId(UUID.randomUUID()).value(4).createdOn(now).updatedOn(now).build()
+                Rating.builder().userId(userId).movieId(UUID.randomUUID()).rating(5).createdOn(now).updatedOn(now).build(),
+                Rating.builder().userId(userId).movieId(UUID.randomUUID()).rating(4).createdOn(now).updatedOn(now).build()
         );
         when(ratingRepository.findAllByUserIdOrderByUpdatedOnDesc(userId)).thenReturn(ratings);
 
@@ -245,7 +245,7 @@ public class RatingServiceUTest {
             ratings.add(Rating.builder()
                     .userId(userId)
                     .movieId(UUID.randomUUID())
-                    .value(i % 5 + 1)
+                    .rating(i % 5 + 1)
                     .createdOn(now)
                     .updatedOn(now)
                     .build());

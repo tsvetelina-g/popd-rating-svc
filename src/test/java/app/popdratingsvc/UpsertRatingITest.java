@@ -35,7 +35,7 @@ public class UpsertRatingITest {
         RatingRequest ratingRequest = RatingRequest.builder()
                 .userId(userId)
                 .movieId(movieId)
-                .value(5)
+                .rating(5)
                 .build();
 
         Rating createdRating = ratingService.upsert(ratingRequest);
@@ -43,13 +43,13 @@ public class UpsertRatingITest {
         assertNotNull(createdRating.getId());
         assertEquals(userId, createdRating.getUserId());
         assertEquals(movieId, createdRating.getMovieId());
-        assertEquals(5, createdRating.getValue());
+        assertEquals(5, createdRating.getRating());
         assertNotNull(createdRating.getCreatedOn());
         assertNotNull(createdRating.getUpdatedOn());
 
         Rating ratingFromDb = ratingRepository.findById(createdRating.getId()).orElse(null);
         assertNotNull(ratingFromDb);
-        assertEquals(5, ratingFromDb.getValue());
+        assertEquals(5, ratingFromDb.getRating());
         assertEquals(1, ratingRepository.count());
     }
 
@@ -62,7 +62,7 @@ public class UpsertRatingITest {
         Rating existingRating = Rating.builder()
                 .userId(userId)
                 .movieId(movieId)
-                .value(3)
+                .rating(3)
                 .createdOn(originalCreatedOn)
                 .updatedOn(originalCreatedOn)
                 .build();
@@ -71,20 +71,20 @@ public class UpsertRatingITest {
         RatingRequest updateRequest = RatingRequest.builder()
                 .userId(userId)
                 .movieId(movieId)
-                .value(5)
+                .rating(5)
                 .build();
 
         Rating updatedRating = ratingService.upsert(updateRequest);
 
         assertEquals(existingRating.getId(), updatedRating.getId());
-        assertEquals(5, updatedRating.getValue());
+        assertEquals(5, updatedRating.getRating());
         assertThat(updatedRating.getCreatedOn()).isCloseTo(originalCreatedOn, within(1, ChronoUnit.MICROS));
         assertTrue(updatedRating.getUpdatedOn().isAfter(originalCreatedOn));
         assertEquals(1, ratingRepository.count());
 
         Rating ratingFromDb = ratingRepository.findById(updatedRating.getId()).orElse(null);
         assertNotNull(ratingFromDb);
-        assertEquals(5, ratingFromDb.getValue());
+        assertEquals(5, ratingFromDb.getRating());
     }
 
     @Test
@@ -97,17 +97,17 @@ public class UpsertRatingITest {
         RatingRequest user1Movie1 = RatingRequest.builder()
                 .userId(user1)
                 .movieId(movie1)
-                .value(5)
+                .rating(5)
                 .build();
         RatingRequest user1Movie2 = RatingRequest.builder()
                 .userId(user1)
                 .movieId(movie2)
-                .value(4)
+                .rating(4)
                 .build();
         RatingRequest user2Movie1 = RatingRequest.builder()
                 .userId(user2)
                 .movieId(movie1)
-                .value(3)
+                .rating(3)
                 .build();
 
         ratingService.upsert(user1Movie1);
@@ -123,11 +123,11 @@ public class UpsertRatingITest {
         RatingRequest user1Movie1Update = RatingRequest.builder()
                 .userId(user1)
                 .movieId(movie1)
-                .value(1)
+                .rating(1)
                 .build();
         Rating updated = ratingService.upsert(user1Movie1Update);
 
         assertEquals(3, ratingRepository.count());
-        assertEquals(1, updated.getValue());
+        assertEquals(1, updated.getRating());
     }
 }

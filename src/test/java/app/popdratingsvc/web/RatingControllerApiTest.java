@@ -39,7 +39,7 @@ public class RatingControllerApiTest {
                 .id(UUID.randomUUID())
                 .userId(userId)
                 .movieId(movieId)
-                .value(5)
+                .rating(5)
                 .createdOn(now)
                 .updatedOn(now)
                 .build();
@@ -49,7 +49,7 @@ public class RatingControllerApiTest {
                 {
                     "userId": "%s",
                     "movieId": "%s",
-                    "value": 5
+                    "rating": 5
                 }
                 """.formatted(userId, movieId);
 
@@ -61,7 +61,7 @@ public class RatingControllerApiTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.userId").value(userId.toString()))
                 .andExpect(jsonPath("$.movieId").value(movieId.toString()))
-                .andExpect(jsonPath("$.value").value(5));
+                .andExpect(jsonPath("$.rating").value(5));
 
         verify(ratingService).upsert(any());
     }
@@ -75,7 +75,7 @@ public class RatingControllerApiTest {
                 .id(UUID.randomUUID())
                 .userId(userId)
                 .movieId(movieId)
-                .value(4)
+                .rating(4)
                 .createdOn(now)
                 .updatedOn(now)
                 .build();
@@ -87,7 +87,7 @@ public class RatingControllerApiTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userId").value(userId.toString()))
                 .andExpect(jsonPath("$.movieId").value(movieId.toString()))
-                .andExpect(jsonPath("$.value").value(4));
+                .andExpect(jsonPath("$.rating").value(4));
 
         verify(ratingService).findByUserIdAndMovieId(userId, movieId);
     }
@@ -202,14 +202,14 @@ public class RatingControllerApiTest {
                 RatingResponse.builder()
                         .userId(userId)
                         .movieId(UUID.randomUUID())
-                        .value(5)
+                        .rating(5)
                         .createdOn(now)
                         .updatedOn(now)
                         .build(),
                 RatingResponse.builder()
                         .userId(userId)
                         .movieId(UUID.randomUUID())
-                        .value(4)
+                        .rating(4)
                         .createdOn(now)
                         .updatedOn(now)
                         .build()
@@ -221,8 +221,8 @@ public class RatingControllerApiTest {
         mockMvc.perform(httpRequest)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].value").value(5))
-                .andExpect(jsonPath("$[1].value").value(4));
+                .andExpect(jsonPath("$[0].rating").value(5))
+                .andExpect(jsonPath("$[1].rating").value(4));
 
         verify(ratingService).getLatestRatingsByUserId(userId);
     }

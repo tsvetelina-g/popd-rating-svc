@@ -29,7 +29,7 @@ public class RatingService {
 
         if (ratingOpt.isPresent()) {
             Rating rating = ratingOpt.get();
-            rating.setValue(ratingRequest.getValue());
+            rating.setRating(ratingRequest.getRating());
             rating.setUpdatedOn(LocalDateTime.now());
             
             Rating savedRating = ratingRepository.save(rating);
@@ -39,7 +39,7 @@ public class RatingService {
         }
 
         Rating rating = Rating.builder()
-                .value(ratingRequest.getValue())
+                .rating(ratingRequest.getRating())
                 .movieId(ratingRequest.getMovieId())
                 .userId(ratingRequest.getUserId())
                 .createdOn(LocalDateTime.now())
@@ -71,7 +71,7 @@ public class RatingService {
         }
 
         double sum = ratings.stream()
-                .mapToInt(Rating::getValue)
+                .mapToInt(Rating::getRating)
                 .sum();
 
         Double average = sum / ratings.size();
